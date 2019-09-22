@@ -11,7 +11,7 @@ handle.
 
 Example usage:
 
-haskell```
+```haskell
 import Streamly
 import qualified Streamly.Prelude as S
 import Streamly.Csv (decode, encode, chunkStream)
