@@ -20,7 +20,7 @@ import qualified Data.Csv as Csv
 import qualified Data.ByteString as BS
 import Data.Vector (Vector)
 
-do
+main = do
   h <- openFile "testfile.csv" ReadMode
   let chunks = chunkStream h (64*1024)
       recs = decode Csv.HasHeader chunks :: SerialT IO (Vector BS.ByteString)
