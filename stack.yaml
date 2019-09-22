@@ -40,8 +40,9 @@ packages:
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
 extra-deps: 
-- git: https://github.com/composewell/streamly.git
-  commit: b96d73517e52a42a8fc34e705a29582c3e61bab7
+- streamly-0.6.1
+# - git: https://github.com/composewell/streamly.git
+#   commit: b96d73517e52a42a8fc34e705a29582c3e61bab7
 - streaming-with-0.2.2.1@sha256:f5f354c9d1ed9358bf91792a2804c897544b170b2891b6c0ee61120605f0327c,1280
 
 # Override default flag values for local packages and extra-deps

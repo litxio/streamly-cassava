@@ -1,23 +1,20 @@
 name:                streamly-cassava
 version:             0.1.0.0
-github:              "githubuser/streamly-cassava"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2019 Author name here"
+github:              "litxio/streamly-cassava"
+license:             MIT
+author:              "Richard Warfield"
+maintainer:          "richard@litx.io"
+copyright:           "2019 Richard Warfield"
 
 extra-source-files:
 - README.md
 - ChangeLog.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis:            CSV streaming support via cassava for the streamly ecosystem
+category:            Streaming
 
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/streamly-cassava#readme>
+description:         Please see the README on GitHub at <https://github.com/litxio/streamly-cassava#readme>
 
 dependencies:
 - base >= 4.7 && < 5

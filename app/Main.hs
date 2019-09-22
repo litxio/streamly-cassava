@@ -8,7 +8,6 @@ import qualified Streamly as S
 import qualified Streamly.Prelude as S
 import Control.DeepSeq
 import GHC.Generics
-import qualified Streamly.FileSystem.Handle as SH
 import qualified Data.Csv as Csv
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
