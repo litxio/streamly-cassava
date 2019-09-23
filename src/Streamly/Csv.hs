@@ -5,7 +5,7 @@
    Module      : Streamly.Csv
    Description : Cassava support for the streamly library
    Copyright   : (c) Richard Warfield
-   License     : MIT
+   License     : BSD 3-clause
    Maintainer  : richard@litx.io
 
    Stream CSV data in\/out using

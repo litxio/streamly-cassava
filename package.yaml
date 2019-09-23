@@ -1,7 +1,7 @@
 name:                streamly-cassava
-version:             0.1.0.0
+version:             0.1.1.0
 github:              "litxio/streamly-cassava"
-license:             MIT
+license:             BSD3
 author:              "Richard Warfield"
 maintainer:          "richard@litx.io"
 copyright:           "2019 Richard Warfield"
@@ -26,27 +26,7 @@ dependencies:
 
 library:
   source-dirs: src
-  ghc-options:
-    - -O2
 
-executables:
-  streamly-cassava-exe:
-    main:                Main.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    - -O2
-    dependencies:
-    - streamly-cassava
-    - vector
-    - deepseq
-    - streaming
-    - streaming-cassava
-    - streaming-with
-    - streaming-bytestring
-    - unordered-containers
 
 tests:
   streamly-cassava-test:
