@@ -13,7 +13,7 @@
    [streaming-cassava](http://hackage.haskell.org/package/streaming-cassava).
 
    For efficiency, operates on streams of strict ByteString chunks 
-   @(i.e. IsStream t => t m ByteString)@ rather than directly on streams of Word8. 
+   @(i.e. S.IsStream t => t m ByteString)@ rather than directly on streams of Word8. 
    The 'chunkStream' function is useful for generating an input stream from a
    'Handle'.
 
@@ -30,7 +30,7 @@
    > do
    >   h <- openFile "testfile.csv" ReadMode
    >   let chunks = chunkStream h (64*1024)
-   >       recs = decode Csv.HasHeader chunks :: SerialT IO (Vector BS.ByteString)
+   >       recs = decode Csv.HasHeader chunks :: S.SerialT IO (Vector BS.ByteString)
    >   withFile "dest.csv" WriteMode $ \ho ->
    >     S.mapM_ (BS.hPut ho) $ encode Nothing recs
  -}
@@ -71,8 +71,7 @@ module Streamly.Csv
 
 import qualified Data.ByteString                    as BS
 import qualified Data.ByteString.Lazy               as BSL
-import           Streamly
-import qualified Streamly.Prelude                  as S
+import qualified Streamly.Prelude                   as S
 
 import           Data.Csv             (DecodeOptions(..), DefaultOrdered(..),
                                        EncodeOptions(..), FromNamedRecord(..),
@@ -98,7 +97,7 @@ import Data.Typeable             (Typeable)
 --------------------------------------------------------------------------------
 
 -- | Use 'defaultOptions' for decoding the provided CSV.
-decode :: (IsStream t, MonadAsync m, FromRecord a)
+decode :: (S.IsStream t, S.MonadAsync m, FromRecord a)
        => HasHeader
        -> t m BS.ByteString
        -> t m a
@@ -111,7 +110,7 @@ decode = decodeWith defaultDecodeOptions
 --   'decodeWithErrors' with 'S.mapMaybe'
 --
 --   Any remaining input is discarded.
-decodeWith :: (IsStream t, MonadAsync m, FromRecord a)
+decodeWith :: (S.IsStream t, S.MonadAsync m, FromRecord a)
            => DecodeOptions -> HasHeader
            -> t m BS.ByteString
            -> t m a
@@ -121,15 +120,15 @@ decodeWith opts hdr chunks = getValues (decodeWithErrors opts hdr chunks)
 -- | Return back a stream with an attempt at type conversion, and
 --   either the previous result or any overall parsing errors with the
 --   remainder of the input.
-decodeWithErrors :: (IsStream t, Monad m, FromRecord a, MonadThrow m)
+decodeWithErrors :: (S.IsStream t, Monad m, FromRecord a, MonadThrow m)
                  => DecodeOptions -> HasHeader
                  -> t m BS.ByteString
                  -> t m (Either CsvParseException a)
 decodeWithErrors opts = runParser . CI.decodeWith opts
 
-runParser :: forall t a m. (IsStream t, Monad m, MonadThrow m)
+runParser :: forall t a m. (S.IsStream t, Monad m, MonadThrow m)
           => Parser a -> t m BS.ByteString -> t m (Either CsvParseException a)
-runParser p chunked = S.concatMap fst $ S.scanlM' continue (S.nil, const p) $
+runParser p chunked = S.concatMap fst $ S.scanlM' continue (pure (S.nil, const p)) $
                         S.cons BS.empty chunked
   where
     continue :: (t m (Either CsvParseException a), BS.ByteString -> Parser a)
@@ -143,7 +142,7 @@ runParser p chunked = S.concatMap fst $ S.scanlM' continue (S.nil, const p) $
 
     withEach = S.fromList . map (first CsvParseException)
 
-chunkStream :: (IsStream t, MonadAsync m) => Handle -> Int -> t m BS.ByteString
+chunkStream :: (S.IsStream t, S.MonadAsync m) => Handle -> Int -> t m BS.ByteString
 chunkStream h chunkSize = loop
   where
     loop = S.takeWhile (not . BS.null) $
@@ -152,8 +151,8 @@ chunkStream h chunkSize = loop
 --------------------------------------------------------------------------------
 
 -- | Use 'defaultOptions' for decoding the provided CSV.
-decodeByName :: (MonadAsync m, FromNamedRecord a)
-                => SerialT m BS.ByteString -> SerialT m a
+decodeByName :: (S.MonadAsync m, FromNamedRecord a)
+                => S.SerialT m BS.ByteString -> S.SerialT m a
 decodeByName = decodeByNameWith defaultDecodeOptions
 
 -- | Return back a stream of values from the provided CSV, stopping at
@@ -166,9 +165,9 @@ decodeByName = decodeByNameWith defaultDecodeOptions
 --   'decodeByNameWithErrors' with 'S.mapMaybe'
 --
 --   Any remaining input is discarded.
-decodeByNameWith :: (MonadAsync m, FromNamedRecord a)
+decodeByNameWith :: (S.MonadAsync m, FromNamedRecord a)
                     => DecodeOptions
-                    -> SerialT m BS.ByteString -> SerialT m a
+                    -> S.SerialT m BS.ByteString -> S.SerialT m a
 decodeByNameWith opts bs = getValues (decodeByNameWithErrors opts bs)
                            -- >>= either (throwError . fst) return
 
@@ -181,15 +180,16 @@ decodeByNameWith opts bs = getValues (decodeByNameWithErrors opts bs)
 --
 decodeByNameWithErrors :: forall m a. (Monad m, MonadThrow m, FromNamedRecord a) 
                        => DecodeOptions
-                       -> SerialT m BS.ByteString
-                       -> SerialT m (Either CsvParseException a)
+                       -> S.SerialT m BS.ByteString
+                       -> S.SerialT m (Either CsvParseException a)
 decodeByNameWithErrors opts chunked = do
-  (p, rest) <- S.yieldM $ extractParser (const $ CI.decodeByNameWith opts) $ S.cons BS.empty chunked
+  (p, rest) <- S.fromEffect $ extractParser (const $ CI.decodeByNameWith opts) $ 
+    S.cons BS.empty chunked
   runParser p rest
   where
     extractParser :: (BS.ByteString -> HeaderParser (Parser a))
-                  -> SerialT m BS.ByteString
-                  -> m (Parser a, SerialT m BS.ByteString)
+                  -> S.SerialT m BS.ByteString
+                  -> m (Parser a, S.SerialT m BS.ByteString)
     extractParser p chunks = S.uncons chunks >>= \case
       Just (hed, rest) -> 
         case p hed of
@@ -204,13 +204,13 @@ decodeByNameWithErrors opts chunked = do
 -- --
 -- --   Optionally prefix the stream with headers (the 'header' function
 -- --   may be useful).
-encode :: (IsStream t, ToRecord a, Monad m) => Maybe Header
+encode :: (S.IsStream t, ToRecord a, Monad m) => Maybe Header
           -> t m a -> t m BS.ByteString
 encode = encodeWith defaultEncodeOptions
 
 -- | Encode a stream of values with the default options and a derived
 --   header prefixed.
-encodeDefault :: forall a t m. (IsStream t, ToRecord a, DefaultOrdered a, Monad m)
+encodeDefault :: forall a t m. (S.IsStream t, ToRecord a, DefaultOrdered a, Monad m)
                  => t m a -> t m BS.ByteString
 encodeDefault = encode (Just (headerOrder (undefined :: a)))
 
@@ -218,7 +218,7 @@ encodeDefault = encode (Just (headerOrder (undefined :: a)))
 --
 --   Optionally prefix the stream with headers (the 'header' function
 --   may be useful).
-encodeWith :: (IsStream t, ToRecord a, Monad m)
+encodeWith :: (S.IsStream t, ToRecord a, Monad m)
            => EncodeOptions 
            -> Maybe Header
            -> t m a 
@@ -235,14 +235,14 @@ encodeWith opts mhdr = S.concatMap S.fromList
 --------------------------------------------------------------------------------
 
 -- | Use the default ordering to encode all fields\/columns.
-encodeByNameDefault :: forall a t m. (IsStream t, DefaultOrdered a, ToNamedRecord a, Monad m)
+encodeByNameDefault :: forall a t m. (S.IsStream t, DefaultOrdered a, ToNamedRecord a, Monad m)
                        => t m a -> t m BS.ByteString
 encodeByNameDefault = encodeByName (headerOrder (undefined :: a))
 
 -- | Select the columns that you wish to encode from your data
 --   structure using default options (which currently includes
 --   printing the header).
-encodeByName :: (IsStream t, ToNamedRecord a, Monad m) => Header
+encodeByName :: (S.IsStream t, ToNamedRecord a, Monad m) => Header
                 -> t m a -> t m BS.ByteString
 encodeByName = encodeByNameWith defaultEncodeOptions
 
@@ -250,7 +250,7 @@ encodeByName = encodeByNameWith defaultEncodeOptions
 --   structure.
 --
 --   Header printing respects 'encIncludeheader'.
-encodeByNameWith :: (IsStream t, ToNamedRecord a, Monad m) => EncodeOptions -> Header
+encodeByNameWith :: (S.IsStream t, ToNamedRecord a, Monad m) => EncodeOptions -> Header
                     -> t m a -> t m BS.ByteString
 encodeByNameWith opts hdr = S.concatMap S.fromList
                             . addHeaders
@@ -267,7 +267,7 @@ encodeByNameWith opts hdr = S.concatMap S.fromList
 
 --------------------------------------------------------------------------------
 
-getValues :: (IsStream t, MonadAsync m, Exception e)
+getValues :: (S.IsStream t, S.MonadAsync m, Exception e)
           => t m (Either e a) -> t m a
 getValues = S.mapM (either throwM return)
 

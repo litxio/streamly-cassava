@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-14.6
+resolver: lts-18.6
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -40,10 +40,7 @@ packages:
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
 extra-deps: 
-- streamly-0.6.1
-# - git: https://github.com/composewell/streamly.git
-#   commit: b96d73517e52a42a8fc34e705a29582c3e61bab7
-- streaming-with-0.2.2.1@sha256:f5f354c9d1ed9358bf91792a2804c897544b170b2891b6c0ee61120605f0327c,1280
+- streamly-0.8.0@sha256:9784c80ee1ada51477520cabc4e92a0c76a6bb265f968a188f2fce818e7398e0,19654
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

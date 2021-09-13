@@ -18,7 +18,7 @@ description:         Please see the README on GitHub at <https://github.com/litx
 
 dependencies:
 - base >= 4.7 && < 5
-- streamly
+- streamly ^>= 0.8
 - cassava
 - bytestring
 - mtl
