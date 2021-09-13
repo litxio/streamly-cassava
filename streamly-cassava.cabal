@@ -1,10 +1,8 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 5501d10dd32d10ce7df262eb0606e58ddfa9901a881b9ac0d68ad91337f760a5
 
 name:           streamly-cassava
 version:        0.1.1.0
@@ -40,7 +38,7 @@ library
     , cassava
     , exceptions
     , mtl
-    , streamly
+    , streamly ==0.8.*
   default-language: Haskell2010
 
 test-suite streamly-cassava-test
@@ -60,7 +58,7 @@ test-suite streamly-cassava-test
     , hspec
     , mtl
     , quickcheck-instances
-    , streamly
+    , streamly ==0.8.*
     , streamly-cassava
     , text
     , vector
@@ -85,7 +83,7 @@ benchmark streamly-cassava-bench
     , streaming-bytestring
     , streaming-cassava
     , streaming-with
-    , streamly
+    , streamly ==0.8.*
     , streamly-cassava
     , vector
     , weigh
