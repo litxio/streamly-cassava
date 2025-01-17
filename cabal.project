@@ -1,0 +1,9 @@
+packages: .
+
+tests: True
+benchmarks: True
+
+-- These only relate to the benchmarks
+allow-newer:
+  streaming-with
+ ,streaming-bytestring
