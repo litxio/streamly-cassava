@@ -1,10 +1,10 @@
 name:                streamly-cassava
-version:             0.1.1.0
+version:             0.2.0.0
 github:              "litxio/streamly-cassava"
 license:             BSD3
 author:              "Richard Warfield"
 maintainer:          "richard@litx.io"
-copyright:           "2019 Richard Warfield"
+copyright:           "2025 Richard Warfield"
 
 extra-source-files:
 - README.md
@@ -18,11 +18,13 @@ description:         Please see the README on GitHub at <https://github.com/litx
 
 dependencies:
 - base >= 4.7 && < 5
-- streamly
+- streamly >= 0.9
+- streamly-core
 - cassava
 - bytestring
 - mtl
 - exceptions
+- vector
 
 library:
   source-dirs: src

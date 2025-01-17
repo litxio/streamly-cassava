@@ -3,8 +3,9 @@
 
 
 import System.IO
-import qualified Streamly as S
-import qualified Streamly.Prelude as S
+import qualified Streamly.Data.Stream.Prelude       as S
+import qualified Streamly.Internal.Data.Stream      as SI
+import Streamly.Data.Stream.Prelude (MonadAsync, Stream)
 import qualified Data.Csv as Csv
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
@@ -50,9 +51,9 @@ copyAllStreamly :: FilePath -> FilePath -> IO ()
 copyAllStreamly fIn fOut = do
   h <- openFile fIn ReadMode
   let chunks = chunkStream h (64*1024)
-      recs = decode Csv.HasHeader chunks :: S.SerialT IO (V.Vector BS.ByteString)
+      recs = decode Csv.HasHeader chunks :: S.Stream IO (V.Vector BS.ByteString)
   withFile fOut WriteMode $ \ho ->
-    S.mapM_ (BS.hPut ho) $ encode Nothing recs
+    SI.mapM_ (BS.hPut ho) $ encode Nothing recs
 
 newtype StupidMonad a = StupidMonad {runStupid :: IO a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadMask

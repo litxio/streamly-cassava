@@ -16,8 +16,9 @@
 
 import Streamly.Csv
 
-import Streamly
-import qualified Streamly.Prelude as S
+import qualified Streamly.Data.Stream.Prelude       as S
+import qualified Streamly.Internal.Data.Stream      as SI
+import Streamly.Data.Stream.Prelude (MonadAsync, Stream)
 
 import Test.Hspec                (describe, hspec)
 import Test.Hspec.QuickCheck     (prop)
@@ -67,7 +68,7 @@ encodeDecodeNamedReordered = encodeDecodeWith (decodeByName . encodeByName hdr)
     hdr = V.reverse (headerOrder (undefined :: a))
 
 encodeDecodeWith :: forall a m. (Eq a, MonadAsync m, MonadCatch m)
-                    => (SerialT m a -> SerialT m a)
+                    => (Stream m a -> Stream m a)
                     -> [a] -> m Bool
 encodeDecodeWith f as = fmap (either (const False) (as==))
                         . (try :: m [a] -> m (Either SomeException [a]))
